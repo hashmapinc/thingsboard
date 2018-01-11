@@ -59,14 +59,15 @@ public class DeviceAttributeRestAction implements PluginAction<RestApiCallPlugin
 
         HashMap<String, String> attributes = new HashMap<>(payload.getAttributes().size());
         attributes.put("deviceName",device);
-        String tagsStr = "";
+        StringBuilder tagsStr = new StringBuilder();
+        String delimiter = "";
         //Comma separated tags.
         for(AttributeKvEntry attr: payload.getAttributes()){
-            tagsStr = tagsStr + attr.getValueAsString() + ",";
-            //attributes.put(attr.getKey(), attr.getValueAsString());
+            tagsStr.append(delimiter);
+            tagsStr.append(attr.getValueAsString());
+            delimiter = ",";
         }
-        tagsStr = tagsStr.substring(0,tagsStr.length() - 1);
-        attributes.put("tags",tagsStr);
+        attributes.put("tags",tagsStr.toString());
         ObjectMapper mapper = new ObjectMapper();
         String msgBody;
         try {
@@ -90,7 +91,7 @@ public class DeviceAttributeRestAction implements PluginAction<RestApiCallPlugin
 
     @Override
     public Optional<ToDeviceMsg> convert(PluginToRuleMsg<?> response) {
-        return null;
+        return Optional.empty();
     }
 
     @Override
