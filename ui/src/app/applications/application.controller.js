@@ -724,9 +724,11 @@ export function ApplicationController($log, $rootScope, userService, application
                 var rules = {"applicationId": vm.currentApplication.id.id, "rules":[savedRule.id.id]};
                 var deviceTypes =[];
                  savedRule.filters.forEach(function(filter){
-                    filter.configuration.deviceTypes.forEach(function(deviceType){
-                        deviceTypes.push(deviceType.name.toLowerCase());
+                    if(angular.isDefined(filter.configuration.deviceTypes)){
+                        filter.configuration.deviceTypes.forEach(function(deviceType){
+                            deviceTypes.push(deviceType.name.toLowerCase());
                     })
+                    }
                  });
 
                 
