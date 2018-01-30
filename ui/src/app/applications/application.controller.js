@@ -720,18 +720,17 @@ export function ApplicationController($log, $rootScope, userService, application
         var deferred = $q.defer();
         ruleService.saveRule(rule).then(
             function success(savedRule) {
-                $log.log(savedRule);
                 var rules = {"applicationId": vm.currentApplication.id.id, "rules":[savedRule.id.id]};
-                var deviceTypes =[];
-                 savedRule.filters.forEach(function(filter){
-                    filter.configuration.deviceTypes.forEach(function(deviceType){
-                        deviceTypes.push(deviceType.name.toLowerCase());
-                    })
-                 });
+                // var deviceTypes =[];
+                //  savedRule.filters.forEach(function(filter){
+                //     filter.configuration.deviceTypes.forEach(function(deviceType){
+                //         deviceTypes.push(deviceType.name.toLowerCase());
+                //     })
+                //  });
 
                 
                 applicationService.assignRulesToApplication(rules);
-                applicationService.assignDeviceTypesToApplication(vm.currentApplication.id.id, deviceTypes);
+             //   applicationService.assignDeviceTypesToApplication(vm.currentApplication.id.id, deviceTypes);
             },
             function fail() {
                 deferred.reject();
@@ -741,7 +740,18 @@ export function ApplicationController($log, $rootScope, userService, application
     }
 
     function deleteRule(ruleId) {
-        return ruleService.deleteRule(ruleId);
+        var deferred = $q.defer();
+        ruleService.deleteRule(ruleId).then(
+            function success(deletedRule) {
+                            $log.log(deletedRule);
+                var rules = {"applicationId": vm.currentApplication.id.id, "rules":[deletedRule.id.id]};
+                applicationService.unAssignRulesFromApplication(rules);
+            },
+            function fail() {
+                deferred.reject();
+            }
+        );
+        return deferred.promise;
     }
 
     function getRuleTitle(rule) {
