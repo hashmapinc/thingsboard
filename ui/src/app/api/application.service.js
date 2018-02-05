@@ -233,7 +233,7 @@ function ApplicationService($http, $q, customerService) {
 
      function unAssignRulesFromApplication(rules) {
         var deferred = $q.defer();
-        var url = '/api/app/assignRules';
+        var url = '/api/app/unassignRules';
         $http.post(url, rules).then(function success(response) {
             deferred.resolve(response.data);
         }, function fail() {
