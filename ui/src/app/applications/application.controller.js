@@ -35,7 +35,7 @@ export function ApplicationCardController(types) {
 }
 
 /*@ngInject*/
-export function ApplicationController($log, $rootScope, userService, applicationService, customerService, $state, $stateParams, $document, $mdDialog, $q, types, ruleService, importExport, $filter, dashboardService, $translate, $window) {
+export function ApplicationController($timeout, $log, $rootScope, userService, applicationService, customerService, $state, $stateParams, $document, $mdDialog, $q, types, ruleService, importExport, $filter, dashboardService, $translate, $window) {
 
     var customerId = $stateParams.customerId;
 
@@ -94,30 +94,61 @@ export function ApplicationController($log, $rootScope, userService, application
     vm.manageCredentials = manageCredentials;
     vm.currentApp = currentApp;
     vm.appClicked = false;
+    vm.appSliderOpen = true;
 
     vm.showAppMini = false;
     vm.showAppMain = false;
     vm.showAppRules = false;
+    vm.showAppDetails = true;
+
 
     vm.tabselected = function (selectedTab){
         if(selectedTab == 'Mini'){
             vm.showAppMini = true;
             vm.showAppMain = false;
             vm.showAppRules = false;
+            vm.showAppDetails = false;
         }
         else if(selectedTab == 'Rules'){
             vm.showAppMini = false;
             vm.showAppMain = false;
             vm.showAppRules = true;
+            vm.showAppDetails = false;
 
         }
         else if(selectedTab == 'Main'){
             vm.showAppMini = false;
             vm.showAppMain = true;
             vm.showAppRules = false;
+            vm.showAppDetails = false;
 
         }
+        else if(selectedTab == 'Details'){
+            vm.currentAppforDirective = vm.currentApplication;
+          //  vm.grid.detailsConfig.isDetailsOpen = false;
+           // vm.grid.openItem(null, vm.currentApplication);
+          //  vm.grid.openItem(null, vm.currentApplication);
+            vm.showAppMini = false;
+            vm.showAppMain = false;
+            vm.showAppRules = false;
+            vm.showAppDetails = true; 
+        }
 
+    }
+
+    vm.detailesClicked = function() {
+        vm.appSliderOpen = false;
+        $timeout( function(){
+                   vm.showAppMini = false;
+            vm.showAppMain = false;
+            vm.showAppRules = false;
+            vm.showAppDetails = true; 
+                       vm.grid.detailsConfig.isDetailsOpen = false;
+            vm.appSliderOpen = true;
+            $timeout( function(){
+                vm.grid.openItem(null, vm.currentApplication);
+            }, 100 ); 
+        }, 100 ); 
     }
 
     function currentApp(item) {
@@ -717,41 +748,21 @@ export function ApplicationController($log, $rootScope, userService, application
     }
 
     function saveRule(rule) {
-        var deferred = $q.defer();
-        ruleService.saveRule(rule).then(
-            function success(savedRule) {
-                var rules = {"applicationId": vm.currentApplication.id.id, "rules":[savedRule.id.id]};
-                // var deviceTypes =[];
-                //  savedRule.filters.forEach(function(filter){
-                //     filter.configuration.deviceTypes.forEach(function(deviceType){
-                //         deviceTypes.push(deviceType.name.toLowerCase());
-                //     })
-                //  });
-
-                
+        return ruleService.saveRule(rule).then(
+            function(savedRule) {
+                var rules = {"applicationId": vm.currentApplication.id.id, "rules":[savedRule.id.id]}; 
                 applicationService.assignRulesToApplication(rules);
-             //   applicationService.assignDeviceTypesToApplication(vm.currentApplication.id.id, deviceTypes);
-            },
-            function fail() {
-                deferred.reject();
-            }
+           }
         );
-        return deferred.promise;
     }
 
     function deleteRule(ruleId) {
-        var deferred = $q.defer();
-        ruleService.deleteRule(ruleId).then(
-            function success(deletedRule) {
-                            $log.log(deletedRule);
-                var rules = {"applicationId": vm.currentApplication.id.id, "rules":[deletedRule.id.id]};
+        return ruleService.deleteRule(ruleId).then(
+            function() {
+                var rules = {"applicationId": vm.currentApplication.id.id, "rules":[ruleId]};
                 applicationService.unAssignRulesFromApplication(rules);
-            },
-            function fail() {
-                deferred.reject();
             }
         );
-        return deferred.promise;
     }
 
     function getRuleTitle(rule) {
