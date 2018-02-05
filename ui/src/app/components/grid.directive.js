@@ -522,7 +522,9 @@ function GridController($scope, $state, $mdDialog, $document, $q, $timeout, $tra
     }
 
     function openItem($event, item) {
-        $event.stopPropagation();
+        if($event){
+            $event.stopPropagation();
+        }
         if (vm.detailsConfig.currentItem != null && vm.detailsConfig.currentItem.id.id === item.id.id) {
             if (vm.detailsConfig.isDetailsOpen) {
                 vm.detailsConfig.isDetailsOpen = false;
